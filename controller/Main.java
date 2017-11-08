@@ -59,10 +59,6 @@ import java.math.RoundingMode;
  * -tighten up updateComponents() - most calculations don't need to be done
  * every cycle, rather only when there's user input
  * -add label constructor that takes no string
- * -cart info in map screen ( 
- * "Selected Store" gives cart total, distance, any missing items, "Cheapest Trip" gives
- * cheapest store and distance, "Closest Trip" gives closest store and cart total
- * 
  */
 public class Main implements MouseListener, MouseMotionListener {
 	private ArrayList<Product> allProducts;
