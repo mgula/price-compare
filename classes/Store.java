@@ -30,7 +30,8 @@ public class Store {
 	
 	/*Returns different modifiers based on the product and store - for the
 	 *scope of this project, this is just to create the illusion of differing
-	 *prices at stores*/
+	 *prices at stores. Also, the price modifier isn't a BigDecimal because
+	 *no precision is being lost just casting the double to a BigDecimal.*/
 	public double getPriceModifier(Product p) {
 		if (p.getUniform()) {
 			return 1.00;

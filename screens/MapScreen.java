@@ -123,14 +123,12 @@ public class MapScreen extends NonMenuScreen {
 				closestStoreFieldsWidth,
 				closestStoreFieldsHeight);
 		
-		this.closestStoreInfoField = new Label("",
-				closestStoreFieldsXLoc,
+		this.closestStoreInfoField = new Label(closestStoreFieldsXLoc,
 				closestStoreInfoFieldYLoc,
 				closestStoreFieldsWidth,
 				closestStoreFieldsHeight);
 		
-		this.closestStoreDistanceField = new Label("",
-				closestStoreFieldsXLoc,
+		this.closestStoreDistanceField = new Label(closestStoreFieldsXLoc,
 				closestStoreDistanceFieldYLoc,
 				closestStoreFieldsWidth,
 				closestStoreFieldsHeight);
@@ -170,8 +168,7 @@ public class MapScreen extends NonMenuScreen {
 		int itemInfoLabelYLoc = cartListYLoc + cartListHeight;
 		
 		/*Initialize item info label*/
-		this.itemInfoLabel = new Label("",
-				itemInfoLabelXLoc,
+		this.itemInfoLabel = new Label(itemInfoLabelXLoc,
 				itemInfoLabelYLoc,
 				itemInfoLabelWidth,
 				itemInfoLabelHeight);
@@ -196,24 +193,20 @@ public class MapScreen extends NonMenuScreen {
 				storeLabelWidth,
 				storeLabelHeight);
 		this.selectedStoreTitleField.setFont(new Font("GillSansUltraBold", Font.PLAIN, 15));
-		this.selectedStoreNameField = new Label("",
-				storeLabelXLoc,
+		this.selectedStoreNameField = new Label(storeLabelXLoc,
 				nameYLoc,
 				storeLabelWidth,
 				storeLabelHeight);
-		this.selectedStoreDistanceField = new Label("",
-				storeLabelXLoc,
+		this.selectedStoreDistanceField = new Label(storeLabelXLoc,
 				distanceYLoc,
 				storeLabelWidth,
 				storeLabelHeight);
-		this.selectedStoreCartTotalField = new Label("",
-				storeLabelXLoc,
+		this.selectedStoreCartTotalField = new Label(storeLabelXLoc,
 				cartTotalYLoc,
 				storeLabelWidth,
 				storeLabelHeight);
 		this.selectedStoreCartTotalField.setFont(new Font("GillSansUltraBold", Font.BOLD, 14));
-		this.selectedStoreMissingItemsField = new Label("",
-				storeLabelXLoc,
+		this.selectedStoreMissingItemsField = new Label(storeLabelXLoc,
 				missingItemsYLoc,
 				storeLabelWidth,
 				storeLabelHeight);

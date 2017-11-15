@@ -48,17 +48,18 @@ import java.awt.event.MouseMotionListener;
 
 /*Utilities*/
 import java.util.ArrayList;
-import java.math.BigDecimal;
-import java.math.RoundingMode;
+import java.math.BigDecimal; //these are slower and uglier than doubles but are far more accurate
+import java.text.DecimalFormat;
 
 
 /*TODO:
  * -fix screen ratios so it looks passable on every screen
- * -replace all doubles with big decimals
  * -make product prices slightly more realistic
  * -tighten up updateComponents() - most calculations don't need to be done
  * every cycle, rather only when there's user input
- * -add label constructor that takes no string
+ * -make launcher script for easy compiling on other computers
+ * -update cart info on item remove
+ * -missing items text should wrap to prevent overflow into cart area
  */
 public class Main implements MouseListener, MouseMotionListener {
 	private ArrayList<Product> allProducts;
@@ -103,6 +104,8 @@ public class Main implements MouseListener, MouseMotionListener {
 	
 	private boolean running = true;
 	
+	DecimalFormat df;
+	
 	private AppState currState = AppState.START;
 	private AppState nextState = AppState.START;
 	
@@ -137,6 +140,9 @@ public class Main implements MouseListener, MouseMotionListener {
 		this.groceryCart = new ArrayList<Product>();
 		this.initStores();
 		
+		/*Initialize decimal formatter*/
+		this.df = new DecimalFormat("#.00");
+		
 		/*Initialize screens*/
 		this.startScreen = new StartScreen(this.screenWidth, this.screenHeight);
 		this.menuScreen = new MenuScreen(this.screenWidth, this.screenHeight);
@@ -166,31 +172,31 @@ public class Main implements MouseListener, MouseMotionListener {
 	public void initProducts() {
 		/*Initialize list of products.*/
 		this.allProducts = new ArrayList<Product>();
-		this.allProducts.add(new Product("Apples (Red)", ProductType.FRUIT, false, 1.05)); // populate list with some random items
-		this.allProducts.add(new Product("Apples (Green)", ProductType.FRUIT, false, 1.05));
-		this.allProducts.add(new Product("Bananas", ProductType.FRUIT, false, 1.00));
-		this.allProducts.add(new Product("Bread", ProductType.WHEAT, false, 2.30));
-		this.allProducts.add(new Product("Grapes (Green)", ProductType.FRUIT, false, .95));
-		this.allProducts.add(new Product("Chips", ProductType.SNACK, false, 1.25));
-		this.allProducts.add(new Product("Crisps", ProductType.SNACK, false, 1.25));
-		this.allProducts.add(new Product("Chisps", ProductType.SNACK, false, 1.25));
-		this.allProducts.add(new Product("Beef (1 lb)", ProductType.MEAT, false, 6.00));
-		this.allProducts.add(new Product("Chicken (1 lb)", ProductType.MEAT, false, 5.00));
-		this.allProducts.add(new Product("Laundry Detergent", ProductType.UTIL, true, 3.00));
-		this.allProducts.add(new Product("Paper Towels", ProductType.UTIL, false, 2.00));
-		this.allProducts.add(new Product("Batteries (AA)", ProductType.UTIL, true, 4.00));
-		this.allProducts.add(new Product("Batteries (AAA)", ProductType.UTIL, true, 2.00));
-		this.allProducts.add(new Product("Cereal", ProductType.WHEAT, false, 3.00));
-		this.allProducts.add(new Product("Milk (Skim)", ProductType.DAIRY, false, 2.00));
-		this.allProducts.add(new Product("Milk (.5%)", ProductType.DAIRY, false, 2.10));
-		this.allProducts.add(new Product("Milk (1%)", ProductType.DAIRY, false, 2.20));
-		this.allProducts.add(new Product("Milk (2%)", ProductType.DAIRY, false, 2.30));
-		this.allProducts.add(new Product("Cheese", ProductType.DAIRY, false, 3.00));
-		this.allProducts.add(new Product("Water (2 L)", ProductType.BEVERAGE, false, 2.00));
-		this.allProducts.add(new Product("Coca Cola (2 L)", ProductType.BEVERAGE, true, 2.00));
-		this.allProducts.add(new Product("Pepsi (2 L)", ProductType.BEVERAGE, true, 2.00));
-		this.allProducts.add(new Product("Sparkling Water", ProductType.BEVERAGE, false, 2.00));
-		this.allProducts.add(new Product("Ice Cream", ProductType.DAIRY, false, 4.00));
+		this.allProducts.add(new Product("Apples (Red)", ProductType.FRUIT, false, BigDecimal.valueOf(1.05))); // populate list with some random items
+		this.allProducts.add(new Product("Apples (Green)", ProductType.FRUIT, false, BigDecimal.valueOf(1.05)));
+		this.allProducts.add(new Product("Bananas", ProductType.FRUIT, false, BigDecimal.valueOf(1.00)));
+		this.allProducts.add(new Product("Bread", ProductType.WHEAT, false, BigDecimal.valueOf(2.30)));
+		this.allProducts.add(new Product("Grapes (Green)", ProductType.FRUIT, false, BigDecimal.valueOf(.95)));
+		this.allProducts.add(new Product("Chips", ProductType.SNACK, false, BigDecimal.valueOf(1.25)));
+		this.allProducts.add(new Product("Crisps", ProductType.SNACK, false, BigDecimal.valueOf(1.25)));
+		this.allProducts.add(new Product("Chisps", ProductType.SNACK, false, BigDecimal.valueOf(1.25)));
+		this.allProducts.add(new Product("Beef (1 lb)", ProductType.MEAT, false, BigDecimal.valueOf(6.00)));
+		this.allProducts.add(new Product("Chicken (1 lb)", ProductType.MEAT, false, BigDecimal.valueOf(5.00)));
+		this.allProducts.add(new Product("Laundry Detergent", ProductType.UTIL, true, BigDecimal.valueOf(3.00)));
+		this.allProducts.add(new Product("Paper Towels", ProductType.UTIL, false, BigDecimal.valueOf(2.00)));
+		this.allProducts.add(new Product("Batteries (AA)", ProductType.UTIL, true, BigDecimal.valueOf(4.00)));
+		this.allProducts.add(new Product("Batteries (AAA)", ProductType.UTIL, true, BigDecimal.valueOf(2.00)));
+		this.allProducts.add(new Product("Cereal", ProductType.WHEAT, false, BigDecimal.valueOf(3.00)));
+		this.allProducts.add(new Product("Milk (Skim)", ProductType.DAIRY, false, BigDecimal.valueOf(2.00)));
+		this.allProducts.add(new Product("Milk (.5%)", ProductType.DAIRY, false, BigDecimal.valueOf(2.10)));
+		this.allProducts.add(new Product("Milk (1%)", ProductType.DAIRY, false, BigDecimal.valueOf(2.20)));
+		this.allProducts.add(new Product("Milk (2%)", ProductType.DAIRY, false, BigDecimal.valueOf(2.30)));
+		this.allProducts.add(new Product("Cheese", ProductType.DAIRY, false, BigDecimal.valueOf(3.00)));
+		this.allProducts.add(new Product("Water (2 L)", ProductType.BEVERAGE, false, BigDecimal.valueOf(2.00)));
+		this.allProducts.add(new Product("Coca Cola (2 L)", ProductType.BEVERAGE, true, BigDecimal.valueOf(2.00)));
+		this.allProducts.add(new Product("Pepsi (2 L)", ProductType.BEVERAGE, true, BigDecimal.valueOf(2.00)));
+		this.allProducts.add(new Product("Sparkling Water", ProductType.BEVERAGE, false, BigDecimal.valueOf(2.00)));
+		this.allProducts.add(new Product("Ice Cream", ProductType.DAIRY, false, BigDecimal.valueOf(4.00)));
 	}
 	
 	public void initStores() {
@@ -468,17 +474,6 @@ public class Main implements MouseListener, MouseMotionListener {
 		}
 	}
 	
-	/*Stack overflow helped with this one*/
-	public double round(double value) {
-		BigDecimal bd = new BigDecimal(value);
-	    bd = bd.setScale(2, RoundingMode.HALF_UP);
-	    return bd.doubleValue();
-	}
-	
-	public double calculatePrice(Store s, Product p) {
-		return round(p.getBasePrice() * s.getPriceModifier(p));
-	}
-	
 	public void updateSelectedProductInfoString() {
 		if (this.groceryCart.isEmpty()) {
 			this.selectedProductInfo = "Cart is empty";
@@ -489,7 +484,8 @@ public class Main implements MouseListener, MouseMotionListener {
 		} else if (!this.selectedStore.getInventory().contains(this.selectedProduct)) {
 			this.selectedProductInfo = "Item not avaiable at " + this.selectedStore.getName() + ".";
 		} else {
-			this.selectedProductInfo = "Price of " + this.selectedProduct.getName() + " at " + this.selectedStore.getName() + ": $" + this.calculatePrice(this.selectedStore, this.selectedProduct);
+			BigDecimal price = this.selectedProduct.getBasePrice().multiply(BigDecimal.valueOf(this.selectedStore.getPriceModifier(this.selectedProduct)));
+			this.selectedProductInfo = "Price of " + this.selectedProduct.getName() + " at " + this.selectedStore.getName() + ": $" + this.df.format(price.doubleValue());
 		}
 	}
 	
@@ -502,14 +498,14 @@ public class Main implements MouseListener, MouseMotionListener {
 			return;
 		}
 		
-		double total = 0;
+		BigDecimal total = BigDecimal.valueOf(0.00);
 		for (Product p : this.groceryCart) {
 			if (this.selectedStore.getInventory().contains(p)) {
-				total += calculatePrice(this.selectedStore, p);
+				BigDecimal result = p.getBasePrice().multiply(BigDecimal.valueOf(this.selectedStore.getPriceModifier(p)));
+				total = total.add(result);
 			}
 		}
-		total = round(total);
-		this.cartTotal = "$" + total;
+		this.cartTotal = "$" + this.df.format(total.doubleValue());
 	}
 	
 	public void updateMissingItemsString() {

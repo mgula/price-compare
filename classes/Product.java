@@ -1,14 +1,16 @@
 package classes;
 
+import java.math.BigDecimal;
+
 import enums.ProductType;
 
 public class Product {
 	private String name;
 	private ProductType type;
 	private boolean uniform; // same price everywhere
-	private double basePrice;
+	private BigDecimal basePrice;
 	
-	public Product(String s, ProductType t, boolean u, double p) {
+	public Product(String s, ProductType t, boolean u, BigDecimal p) {
 		this.name = s;
 		this.type = t;
 		this.uniform = u;
@@ -27,7 +29,7 @@ public class Product {
 		return this.uniform;
 	}
 	
-	public double getBasePrice() {
+	public BigDecimal getBasePrice() {
 		return this.basePrice;
 	}
 }
