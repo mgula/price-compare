@@ -56,17 +56,24 @@ import java.text.DecimalFormat;
  * -fix screen ratios so it looks passable on every screen
  * -make product prices slightly more realistic
  * -add indicator for selected store
- * -make launcher script for easy compiling on other computers
  * -missing items text should wrap to prevent overflow into cart area
  */
 public class Main implements MouseListener, MouseMotionListener {
 	private ArrayList<Product> allProducts;
 	private ArrayList<Product> groceryCart;
 	
-	private String cartTotal;
+	private ArrayList<Store> stores;
 	
 	private Product selectedProduct = null;
+	private Store selectedStore = null;
+	
+	private Store closestStore = null;
+	private Store cheapestStore = null;
+	private Store hoveredStore = null;
+	
+	private String cartTotal;
 	private String selectedProductInfo = "Cart is empty";
+	private String missingItemsString;
 	
 	private int userXLoc;
 	private int userYLoc;
@@ -74,17 +81,9 @@ public class Main implements MouseListener, MouseMotionListener {
 	private boolean userDrag = false;
 	private boolean userHover = false;
 	
-	private ArrayList<Store> stores;
-	
-	private Store selectedStore = null;
-	private String missingItemsString;
-	
-	private Store closestStore = null;
-	private Store cheapestStore = null;
-	private Store hoveredStore = null;
-	
 	private int pointDimensions = 6; // in pixels
 	private final int pixelsToFeetConstant = 11;
+	private final int bigNumber = 1000000000;
 	
 	private int screenHeight;
 	private int screenWidth;
@@ -288,9 +287,7 @@ public class Main implements MouseListener, MouseMotionListener {
 					}
 				}
 				
-				/*Update relevant strings*/
-				updateCartTotalString();
-				updateMissingItemsString();
+				updateStrings();
 			}
     	});
 		this.cartScreen.getRemoveButton().addActionListener(new ActionListener() {
@@ -317,10 +314,7 @@ public class Main implements MouseListener, MouseMotionListener {
 						selectedProduct = null; // set to null so the string can properly update
 					}
 					
-					/*Update relevant strings*/
-					updateCartTotalString();
-					updateMissingItemsString();
-					updateSelectedProductInfoString();
+					updateStrings();
 				}
 			}
     	});
@@ -371,7 +365,6 @@ public class Main implements MouseListener, MouseMotionListener {
 				}
 				selectedProduct = match;
 				
-				/*Update relevant strings*/
 				updateSelectedProductInfoString();
 			}
 			@Override
@@ -476,6 +469,12 @@ public class Main implements MouseListener, MouseMotionListener {
 		}
 	}
 	
+	public void updateStrings() {
+		this.updateSelectedProductInfoString();
+		this.updateCartTotalString();
+		this.updateMissingItemsString();
+	}
+	
 	public void updateSelectedProductInfoString() {
 		if (this.groceryCart.isEmpty()) {
 			this.selectedProductInfo = "Cart is empty";
@@ -560,7 +559,7 @@ public class Main implements MouseListener, MouseMotionListener {
 	}
 	
 	public void calculateClosestStore() {
-		int closest = 1000000000; // start with some large number
+		int closest = this.bigNumber; // start with some large number
 		for (Store s : this.stores) {
 			if (s.getDistanceTo() < closest) {
 				closest = s.getDistanceTo();
@@ -585,11 +584,7 @@ public class Main implements MouseListener, MouseMotionListener {
 		}
 		if (match != null) {
 			this.selectedStore = match;
-			
-			/*Update the relevant strings*/
-			this.updateCartTotalString();
-			this.updateMissingItemsString();
-			this.updateSelectedProductInfoString();
+			this.updateStrings();
 		}
 		
 		/*Map screen updates*/
