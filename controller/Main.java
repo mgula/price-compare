@@ -55,10 +55,8 @@ import java.text.DecimalFormat;
 /*TODO:
  * -fix screen ratios so it looks passable on every screen
  * -make product prices slightly more realistic
- * -tighten up updateComponents() - most calculations don't need to be done
- * every cycle, rather only when there's user input
+ * -add indicator for selected store
  * -make launcher script for easy compiling on other computers
- * -update cart info on item remove
  * -missing items text should wrap to prevent overflow into cart area
  */
 public class Main implements MouseListener, MouseMotionListener {
@@ -68,13 +66,13 @@ public class Main implements MouseListener, MouseMotionListener {
 	private String cartTotal;
 	
 	private Product selectedProduct = null;
-	private String selectedProductInfo;
+	private String selectedProductInfo = "Cart is empty";
 	
 	private int userXLoc;
 	private int userYLoc;
 	
-	private boolean draggingUser = false;
-	private boolean hoverUser = false;
+	private boolean userDrag = false;
+	private boolean userHover = false;
 	
 	private ArrayList<Store> stores;
 	
@@ -139,6 +137,12 @@ public class Main implements MouseListener, MouseMotionListener {
 		this.initProducts();
 		this.groceryCart = new ArrayList<Product>();
 		this.initStores();
+		
+		/*Calculate initial distances*/
+		this.calculateStoreDistances();
+		
+		/*Initialize the closest store*/
+		this.calculateClosestStore();
 		
 		/*Initialize decimal formatter*/
 		this.df = new DecimalFormat("#.00");
@@ -283,6 +287,8 @@ public class Main implements MouseListener, MouseMotionListener {
 						mapScreen.getCartModel().addElement(productString);
 					}
 				}
+				
+				/*Update relevant strings*/
 				updateCartTotalString();
 				updateMissingItemsString();
 			}
@@ -306,6 +312,15 @@ public class Main implements MouseListener, MouseMotionListener {
 						}
 					}
 					groceryCart.remove(match); // remove after to avoid concurrent modification exception
+					
+					if (match.getName() == selectedProduct.getName()) {
+						selectedProduct = null; // set to null so the string can properly update
+					}
+					
+					/*Update relevant strings*/
+					updateCartTotalString();
+					updateMissingItemsString();
+					updateSelectedProductInfoString();
 				}
 			}
     	});
@@ -355,6 +370,9 @@ public class Main implements MouseListener, MouseMotionListener {
 					}
 				}
 				selectedProduct = match;
+				
+				/*Update relevant strings*/
+				updateSelectedProductInfoString();
 			}
 			@Override
 			public void mousePressed(MouseEvent e) {}
@@ -369,7 +387,7 @@ public class Main implements MouseListener, MouseMotionListener {
 	
 	void tick() {
 		this.updateAppState();
-		this.updateComponents();
+		this.updateLabels();
 		this.frame.repaint();
 	}
 	
@@ -421,13 +439,19 @@ public class Main implements MouseListener, MouseMotionListener {
 		}
 	}
 	
-	public void updateComponents() {
+	/*Warning - this method is inefficient! setText() doesn't need to be called
+	 *on every label every single cycle. Ideally, setText() would be called only when
+	 *necessary, like once after a click or once for each update during a drag event. I'm
+	 *setting the text every cycle only because there's a noticeable flashing that occurs
+	 *when setText() is called once. This is either a swing issue or an issue with my old,
+	 *slow computer.*/
+	public void updateLabels() {
 		switch (this.currState) {
 			case CART:
 				
 				break;
 			case MAP:
-				/*Update selected store*/
+				/*Update selected store labels*/
 				if (this.selectedStore != null) {
 					this.mapScreen.getSelectedStoreNameField().setText("Name: " + this.selectedStore.getName());
 					this.mapScreen.getSelectedStoreDistanceField().setText("Distance: " + this.selectedStore.getDistanceTo() + " ft");
@@ -440,33 +464,11 @@ public class Main implements MouseListener, MouseMotionListener {
 					this.mapScreen.getSelectedStoreMissingItemsField().setText("Missing Items: -");
 				}
 				
-				/*Update hovered store info*/
-				if (this.hoveredStore != null && this.hoveredStore != this.selectedStore) {
-					this.mapScreen.setHovered(true, this.hoveredStore);
-				} else {
-					this.mapScreen.setHovered(false, null);
-				}
+				/*Update closest store information and distance labels*/
+				this.mapScreen.getClosestStoreInfoField().setText(this.closestStore.getName());
+				this.mapScreen.getClosestStoreDistanceField().setText(this.closestStore.getDistanceTo() + " ft");
 				
-				/*Update user location & hover info*/
-				this.mapScreen.setUserLoc(this.userXLoc, this.userYLoc);
-				this.mapScreen.setUserHover(this.hoverUser);
-				
-				/*Update closest store information (and distance info)*/
-				int closest = 10000000; // start with some large number
-				String storeName = "";
-				for (Store s : this.stores) {
-					int distance = this.getDistance(this.userXLoc, s.getXLoc(), this.userYLoc, s.getYLoc());
-					s.setDistanceTo(distance * this.pixelsToFeetConstant); // update distance info
-					if (distance < closest) {
-						closest = distance;
-						storeName = s.getName();
-					}
-				}
-				this.mapScreen.getClosestStoreInfoField().setText(storeName);
-				this.mapScreen.getClosestStoreDistanceField().setText(closest * this.pixelsToFeetConstant + " ft"); // multiply to make it look like feet
-				
-				/*Update selected item info*/
-				this.updateSelectedProductInfoString();
+				/*Update selected item info label*/
 				this.mapScreen.getItemInfoLabel().setText(this.selectedProductInfo);
 				break;
 			default:
@@ -550,6 +552,23 @@ public class Main implements MouseListener, MouseMotionListener {
 		return (int)Math.sqrt(x + y);
 	}
 	
+	public void calculateStoreDistances() {
+		for (Store s : this.stores) {
+			int distance = this.getDistance(this.userXLoc, s.getXLoc(), this.userYLoc, s.getYLoc());
+			s.setDistanceTo(distance * this.pixelsToFeetConstant); // multiply to make it look like feet
+		}
+	}
+	
+	public void calculateClosestStore() {
+		int closest = 1000000000; // start with some large number
+		for (Store s : this.stores) {
+			if (s.getDistanceTo() < closest) {
+				closest = s.getDistanceTo();
+				this.closestStore = s;
+			}
+		}
+	}
+	
 	public void addViewToFrame(JPanel screen) {
 		this.frame.getContentPane().add(screen);
 		this.frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -566,15 +585,25 @@ public class Main implements MouseListener, MouseMotionListener {
 		}
 		if (match != null) {
 			this.selectedStore = match;
+			
+			/*Update the relevant strings*/
 			this.updateCartTotalString();
 			this.updateMissingItemsString();
+			this.updateSelectedProductInfoString();
+		}
+		
+		/*Map screen updates*/
+		if (this.hoveredStore != null && this.hoveredStore != this.selectedStore) {
+			this.mapScreen.setHovered(true, this.hoveredStore);
+		} else {
+			this.mapScreen.setHovered(false, null);
 		}
 	}
 	
 	/*If over user location, allow dragging of the point at that location*/
 	public void initUserLocDrag(int clickX, int clickY) {
 		if (this.inRegion(this.userXLoc, this.userYLoc, clickX, clickY, 3)) {
-			this.draggingUser = true;
+			this.userDrag = true;
 		}
 	}
 	
@@ -595,15 +624,23 @@ public class Main implements MouseListener, MouseMotionListener {
 		
 		/*Check user loc hovers*/
 		if (this.inRegion(this.userXLoc, this.userYLoc, moveX, moveY, 2)) {
-			this.hoverUser = true;
+			this.userHover = true;
 		} else {
-			this.hoverUser = false;
+			this.userHover = false;
+		}
+		
+		/*Map screen updates*/
+		this.mapScreen.setUserHover(this.userHover);
+		if (this.hoveredStore != null && this.hoveredStore != this.selectedStore) {
+			this.mapScreen.setHovered(true, this.hoveredStore);
+		} else {
+			this.mapScreen.setHovered(false, null);
 		}
 	}
 	
 	/*Check user location drags - keep the user location inside the map*/
 	public void manageDrag(int dragX, int dragY) {
-		if (this.draggingUser) {
+		if (this.userDrag) {
 			int offsetMapX = this.mapXLoc - (this.mapWidth / 2);
 			if (dragX > offsetMapX && dragX < offsetMapX + this.mapWidth) {
 				this.userXLoc = dragX;
@@ -612,6 +649,12 @@ public class Main implements MouseListener, MouseMotionListener {
 			if (dragY > offsetMapY && dragY < offsetMapY + this.mapHeight) {
 				this.userYLoc = dragY;
 			}
+			
+			this.calculateStoreDistances();
+			this.calculateClosestStore();
+			
+			/*Map screen updates*/
+			this.mapScreen.setUserLoc(this.userXLoc, this.userYLoc);
 		}
 	}
 	
@@ -640,7 +683,7 @@ public class Main implements MouseListener, MouseMotionListener {
 	
 	@Override
 	public void mouseReleased(MouseEvent e) {
-		this.draggingUser = false;
+		this.userDrag = false;
 	}
 	
 	@Override
