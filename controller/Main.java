@@ -55,7 +55,6 @@ import java.text.DecimalFormat;
 /*TODO:
  * -fix screen ratios so it looks passable on every screen
  * -make product prices slightly more realistic
- * -add indicator for selected store
  * -missing items text should wrap to prevent overflow into cart area
  * -display cheapest store info
  * -display closest store info
@@ -81,8 +80,8 @@ public class Main implements MouseListener, MouseMotionListener {
 	private int userXLoc;
 	private int userYLoc;
 	
-	private boolean userDrag = false;
-	private boolean userHover = false;
+	private boolean userDragged = false;
+	private boolean userHovered = false;
 	
 	private int pointDimensions = 6; // in pixels
 	private final int pixelsToFeetConstant = 11;
@@ -314,8 +313,10 @@ public class Main implements MouseListener, MouseMotionListener {
 					}
 					groceryCart.remove(match); // remove after to avoid concurrent modification exception
 					
-					if (match.getName() == selectedProduct.getName()) {
-						selectedProduct = null; // set to null so the string can properly update
+					if (selectedProduct != null) {
+						if (match.getName() == selectedProduct.getName()) {
+							selectedProduct = null; // set to null so the string can properly update
+						}
 					}
 					
 					updateStrings();
@@ -589,20 +590,24 @@ public class Main implements MouseListener, MouseMotionListener {
 		if (match != null) {
 			this.selectedStore = match;
 			this.updateStrings();
+			
+			this.mapScreen.setSelectedStore(this.selectedStore);
+			this.mapScreen.setSelectedStoreBool(true);
 		}
 		
 		/*Map screen updates*/
 		if (this.hoveredStore != null && this.hoveredStore != this.selectedStore) {
-			this.mapScreen.setHovered(true, this.hoveredStore);
+			this.mapScreen.setHoveredStore(this.hoveredStore);
+			this.mapScreen.setHoveredStoreBool(true);
 		} else {
-			this.mapScreen.setHovered(false, null);
+			this.mapScreen.setHoveredStoreBool(false);
 		}
 	}
 	
 	/*If over user location, allow dragging of the point at that location*/
 	public void initUserLocDrag(int clickX, int clickY) {
 		if (this.inRegion(this.userXLoc, this.userYLoc, clickX, clickY, 3)) {
-			this.userDrag = true;
+			this.userDragged = true;
 		}
 	}
 	
@@ -623,23 +628,24 @@ public class Main implements MouseListener, MouseMotionListener {
 		
 		/*Check user loc hovers*/
 		if (this.inRegion(this.userXLoc, this.userYLoc, moveX, moveY, 2)) {
-			this.userHover = true;
+			this.userHovered = true;
 		} else {
-			this.userHover = false;
+			this.userHovered = false;
 		}
 		
 		/*Map screen updates*/
-		this.mapScreen.setUserHover(this.userHover);
+		this.mapScreen.setUserHovered(this.userHovered);
 		if (this.hoveredStore != null && this.hoveredStore != this.selectedStore) {
-			this.mapScreen.setHovered(true, this.hoveredStore);
+			this.mapScreen.setHoveredStore(this.hoveredStore);
+			this.mapScreen.setHoveredStoreBool(true);
 		} else {
-			this.mapScreen.setHovered(false, null);
+			this.mapScreen.setHoveredStoreBool(false);
 		}
 	}
 	
 	/*Check user location drags - keep the user location inside the map*/
 	public void manageDrag(int dragX, int dragY) {
-		if (this.userDrag) {
+		if (this.userDragged) {
 			int offsetMapX = this.mapXLoc - (this.mapWidth / 2);
 			if (dragX > offsetMapX && dragX < offsetMapX + this.mapWidth) {
 				this.userXLoc = dragX;
@@ -682,7 +688,7 @@ public class Main implements MouseListener, MouseMotionListener {
 	
 	@Override
 	public void mouseReleased(MouseEvent e) {
-		this.userDrag = false;
+		this.userDragged = false;
 	}
 	
 	@Override

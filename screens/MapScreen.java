@@ -38,12 +38,15 @@ public class MapScreen extends NonMenuScreen {
 	
 	private ArrayList<Store> stores;
 	
-	private int userXLoc;
-	private int userYLoc;
-	private boolean userHovered = false;
+	private Store selectedStore;
+	private boolean storeSelected = false;
 	
 	private Store hoveredStore = null;
 	private boolean storeHovered;
+	
+	private int userXLoc;
+	private int userYLoc;
+	private boolean userHovered = false;
 	
 	private int pointDimensions;
 	
@@ -320,20 +323,34 @@ public class MapScreen extends NonMenuScreen {
 			g.drawString("Your location", this.userXLoc, this.userYLoc + (this.screenHeight / 50));
 		}
 		
-		/*Draw hovered store info, if applicable*/
+		/*If a store is selected, draw that store's info at all times*/
+		if (this.storeSelected) {
+			g.drawString("* " + this.selectedStore.getName() + " - " + this.selectedStore.getDistanceTo() + " ft", this.selectedStore.getXLoc(), this.selectedStore.getYLoc() - (this.screenHeight / 75));
+		}
+		
+		/*Draw hovered store info, if hovered over any store that's not selected*/
 		if (this.storeHovered) {
-			g.drawString(this.hoveredStore.getName() + " (" + this.hoveredStore.getDistanceTo() + " ft)", this.hoveredStore.getXLoc(), this.hoveredStore.getYLoc() - (this.screenHeight / 75));
+			g.drawString(this.hoveredStore.getName() + " - " + this.hoveredStore.getDistanceTo() + " ft", this.hoveredStore.getXLoc(), this.hoveredStore.getYLoc() - (this.screenHeight / 75));
 		}
 	}
 	
-	/*It's easier to just pass the store since the hovering text will be drawn to
+	public void setSelectedStoreBool(Boolean b) {
+		this.storeSelected = b;
+	}
+	
+	/*It's easier to just pass the store since the text will be drawn to
 	 *the screen with Graphics (as opposed to it being some JComponent that we would
 	 *set the text of)*/
-	public void setHovered(Boolean b, Store s) {
+	public void setSelectedStore(Store s) {
+		this.selectedStore = s;
+	}
+	
+	public void setHoveredStoreBool(Boolean b) {
 		this.storeHovered = b;
-		if (this.storeHovered) {
-			this.hoveredStore = s;
-		}
+	}
+	
+	public void setHoveredStore(Store s) {
+		this.hoveredStore = s;
 	}
 	
 	public void setUserLoc(int x, int y) {
@@ -341,7 +358,7 @@ public class MapScreen extends NonMenuScreen {
 		this.userYLoc = y;
 	}
 	
-	public void setUserHover(boolean b) {
+	public void setUserHovered(boolean b) {
 		this.userHovered = b;
 	}
 }
