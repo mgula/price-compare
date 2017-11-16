@@ -1,9 +1,8 @@
 package screens;
 
-import java.awt.Font;
-
 import javax.swing.JLabel;
 import javax.swing.SwingConstants;
+import java.awt.Font;
 
 public class Label extends JLabel {
 	private int xLoc;

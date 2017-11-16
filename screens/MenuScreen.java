@@ -1,8 +1,7 @@
 package screens;
 
-import java.awt.Color;
-
 import javax.swing.JPanel;
+import java.awt.Color;
 
 public class MenuScreen extends JPanel {
 

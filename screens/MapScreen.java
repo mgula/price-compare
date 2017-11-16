@@ -1,23 +1,19 @@
 package screens;
 
 import classes.Store;
-
-import java.awt.Color;
-import java.awt.Font;
-import java.awt.Graphics;
-import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
-
-import javax.imageio.ImageIO;
 import javax.swing.DefaultListModel;
 import javax.swing.JList;
 import javax.swing.JScrollPane;
 import javax.swing.ListSelectionModel;
 import javax.swing.ScrollPaneConstants;
-import javax.swing.SwingConstants;
-
+import java.awt.Color;
+import java.awt.Font;
+import java.awt.Graphics;
+import java.awt.image.BufferedImage;
 import java.util.ArrayList;
+import java.io.File;
+import java.io.IOException;
+import javax.imageio.ImageIO;
 
 public class MapScreen extends NonMenuScreen {
 	
@@ -40,14 +36,15 @@ public class MapScreen extends NonMenuScreen {
 	
 	private int mapBorderThickness = 2;
 	
+	private ArrayList<Store> stores;
+	
 	private int userXLoc;
 	private int userYLoc;
+	private boolean userHovered = false;
 	
-	private boolean hoverUser = false;
-	
-	private ArrayList<Store> stores;
 	private Store hoveredStore = null;
-	private boolean hovered;
+	private boolean storeHovered;
+	
 	private int pointDimensions;
 	
 	private Label closestStoreTitleField;
@@ -319,12 +316,12 @@ public class MapScreen extends NonMenuScreen {
 		/*Draw user loc info if hovering over user*/
 		g.setColor(Color.BLACK);
 		g.setFont(new Font("SansSerif", Font.BOLD, 14));
-		if (this.hoverUser) {
+		if (this.userHovered) {
 			g.drawString("Your location", this.userXLoc, this.userYLoc + (this.screenHeight / 50));
 		}
 		
 		/*Draw hovered store info, if applicable*/
-		if (this.hovered) {
+		if (this.storeHovered) {
 			g.drawString(this.hoveredStore.getName() + " (" + this.hoveredStore.getDistanceTo() + " ft)", this.hoveredStore.getXLoc(), this.hoveredStore.getYLoc() - (this.screenHeight / 75));
 		}
 	}
@@ -333,8 +330,8 @@ public class MapScreen extends NonMenuScreen {
 	 *the screen with Graphics (as opposed to it being some JComponent that we would
 	 *set the text of)*/
 	public void setHovered(Boolean b, Store s) {
-		this.hovered = b;
-		if (this.hovered) {
+		this.storeHovered = b;
+		if (this.storeHovered) {
 			this.hoveredStore = s;
 		}
 	}
@@ -345,6 +342,6 @@ public class MapScreen extends NonMenuScreen {
 	}
 	
 	public void setUserHover(boolean b) {
-		this.hoverUser = b;
+		this.userHovered = b;
 	}
 }

@@ -1,8 +1,7 @@
 package classes;
 
-import java.math.BigDecimal;
-
 import enums.ProductType;
+import java.math.BigDecimal;
 
 public class Product {
 	private String name;

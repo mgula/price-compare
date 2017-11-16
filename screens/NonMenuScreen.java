@@ -1,10 +1,8 @@
 package screens;
 
+import javax.swing.JPanel;
 import java.awt.Color;
 import java.awt.Font;
-
-import javax.swing.JPanel;
-import javax.swing.SwingConstants;
 
 public abstract class NonMenuScreen extends JPanel {
 	

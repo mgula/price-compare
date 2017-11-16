@@ -1,15 +1,13 @@
 package screens;
 
-import java.awt.Font;
-import java.util.ArrayList;
-
+import classes.Product;
 import javax.swing.DefaultListModel;
 import javax.swing.JList;
 import javax.swing.JScrollPane;
 import javax.swing.ListSelectionModel;
 import javax.swing.ScrollPaneConstants;
-
-import classes.Product;
+import java.awt.Font;
+import java.util.ArrayList;
 
 public class CartScreen extends NonMenuScreen {
 	

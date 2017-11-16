@@ -57,6 +57,9 @@ import java.text.DecimalFormat;
  * -make product prices slightly more realistic
  * -add indicator for selected store
  * -missing items text should wrap to prevent overflow into cart area
+ * -display cheapest store info
+ * -display closest store info
+ * -toggle "i care about cart completeness" option
  */
 public class Main implements MouseListener, MouseMotionListener {
 	private ArrayList<Product> allProducts;
@@ -284,6 +287,7 @@ public class Main implements MouseListener, MouseMotionListener {
 						groceryCart.add(p);
 						cartScreen.getCartModel().addElement(productString);
 						mapScreen.getCartModel().addElement(productString);
+						break;
 					}
 				}
 				
