@@ -51,16 +51,17 @@ import java.util.ArrayList;
 import java.math.BigDecimal; //these are slower and uglier than doubles but are far more accurate
 import java.text.DecimalFormat;
 
-
 /*TODO:
  * -fix screen ratios so it looks passable on every screen
  * -make product prices slightly more realistic
  * -missing items text should wrap to prevent overflow into cart area
- * -display cheapest store info
- * -display closest store info
  * -toggle "i care about cart completeness" option
+ * -general bug testing
  */
 public class Main implements MouseListener, MouseMotionListener {
+	public enum AppState {START, MENU, CART, MAP, EXIT};
+	public enum SelectionMode {SELECTED, CLOSEST, CHEAPEST};
+	
 	private ArrayList<Product> allProducts;
 	private ArrayList<Product> groceryCart;
 	
@@ -107,6 +108,8 @@ public class Main implements MouseListener, MouseMotionListener {
 	
 	private AppState currState = AppState.START;
 	private AppState nextState = AppState.START;
+	
+	private SelectionMode mode = SelectionMode.SELECTED;
 	
 	private static int sleepTime = 16; // 60 fps!! /s
 	
@@ -339,6 +342,38 @@ public class Main implements MouseListener, MouseMotionListener {
 			@Override
 			public void focusLost(FocusEvent e) {}
 		});
+		this.cartScreen.getSelectToggle().addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				mode = SelectionMode.SELECTED;
+				
+				mapScreen.getSelectedStoreTitleField().setText("Selected Store");
+				selectedStore = null;
+				updateStrings();
+			}
+    	});
+		this.cartScreen.getClosestToggle().addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				mode = SelectionMode.CLOSEST;
+				
+				mapScreen.getSelectedStoreTitleField().setText("Closest Store");
+				updateStrings();
+				
+				mapScreen.setSelectedStoreBool(false);
+			}
+    	});
+		this.cartScreen.getCheapestToggle().addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				mode = SelectionMode.CHEAPEST;
+				
+				mapScreen.getSelectedStoreTitleField().setText("Cheapest Store");
+				updateStrings();
+				
+				mapScreen.setSelectedStoreBool(false);
+			}
+    	});
 		/*Map screen buttons*/
 		this.mapScreen.getBackButton().addActionListener(new ActionListener() {
 			@Override
@@ -408,6 +443,10 @@ public class Main implements MouseListener, MouseMotionListener {
 					this.frame.add(this.cartScreen.getCartLabel());
 					this.frame.add(this.cartScreen.getAllProductPane());
 					this.frame.add(this.cartScreen.getCartPane());
+					this.frame.add(this.cartScreen.getSelectToggle());
+					this.frame.add(this.cartScreen.getClosestToggle());
+					this.frame.add(this.cartScreen.getCheapestToggle());
+					this.frame.add(this.cartScreen.getToggleLabel());
 					this.addViewToFrame(this.cartScreen);
 					break;
 				case MAP:
@@ -445,9 +484,6 @@ public class Main implements MouseListener, MouseMotionListener {
 	 *slow computer.*/
 	public void updateLabels() {
 		switch (this.currState) {
-			case CART:
-				
-				break;
 			case MAP:
 				/*Update selected store labels*/
 				if (this.selectedStore != null) {
@@ -475,6 +511,18 @@ public class Main implements MouseListener, MouseMotionListener {
 	}
 	
 	public void updateStrings() {
+		switch (this.mode) {
+			case CLOSEST:
+				this.calculateClosestStore();
+				this.selectedStore = this.closestStore;
+				break;
+			case CHEAPEST:
+				this.calculateCheapestStore();
+				this.selectedStore = this.cheapestStore;
+				break;
+			default:
+				break;
+		}
 		this.updateSelectedProductInfoString();
 		this.updateCartTotalString();
 		this.updateMissingItemsString();
@@ -488,7 +536,7 @@ public class Main implements MouseListener, MouseMotionListener {
 		} else if (this.selectedStore == null) {
 			this.selectedProductInfo = "Select a store";
 		} else if (!this.selectedStore.getInventory().contains(this.selectedProduct)) {
-			this.selectedProductInfo = "Item not avaiable at " + this.selectedStore.getName() + ".";
+			this.selectedProductInfo = "Item not available at " + this.selectedStore.getName() + ".";
 		} else {
 			BigDecimal price = this.selectedProduct.getBasePrice().multiply(BigDecimal.valueOf(this.selectedStore.getPriceModifier(this.selectedProduct)));
 			this.selectedProductInfo = "Price of " + this.selectedProduct.getName() + " at " + this.selectedStore.getName() + ": $" + this.df.format(price.doubleValue());
@@ -573,6 +621,24 @@ public class Main implements MouseListener, MouseMotionListener {
 		}
 	}
 	
+	public void calculateCheapestStore() {
+		BigDecimal cheapest = BigDecimal.valueOf(1000000.0); // start with some large number
+		for (Store s : this.stores) {
+			BigDecimal total = BigDecimal.valueOf(0.00);
+			for (Product p : this.groceryCart) {
+				if (s.getInventory().contains(p)) {
+					BigDecimal result = p.getBasePrice().multiply(BigDecimal.valueOf(s.getPriceModifier(p)));
+					total = total.add(result);
+				}
+			}
+			
+			if (total.compareTo(cheapest) == -1) {
+				cheapest = total;
+				this.cheapestStore = s;
+			}
+		}
+	}
+	
 	public void addViewToFrame(JPanel screen) {
 		this.frame.getContentPane().add(screen);
 		this.frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -581,26 +647,30 @@ public class Main implements MouseListener, MouseMotionListener {
 	
 	/*Check store clicks*/
 	public void manageClick(int clickX, int clickY) {
-		Store match = null;
-		for (Store s : this.stores) {
-			if (this.inRegion(s.getXLoc(), s.getYLoc(), clickX, clickY, 2)) {
-				match = s;
+		if (this.mode == SelectionMode.SELECTED) {
+			Store match = null;
+			for (Store s : this.stores) {
+				if (this.inRegion(s.getXLoc(), s.getYLoc(), clickX, clickY, 2)) {
+					match = s;
+				}
 			}
-		}
-		if (match != null) {
-			this.selectedStore = match;
-			this.updateStrings();
+			if (match != null) {
+				this.selectedStore = match;
+				this.updateStrings();
 			
-			this.mapScreen.setSelectedStore(this.selectedStore);
-			this.mapScreen.setSelectedStoreBool(true);
-		}
+				this.mapScreen.setSelectedStore(this.selectedStore);
+				this.mapScreen.setSelectedStoreBool(true);
+			}
 		
-		/*Map screen updates*/
-		if (this.hoveredStore != null && this.hoveredStore != this.selectedStore) {
-			this.mapScreen.setHoveredStore(this.hoveredStore);
-			this.mapScreen.setHoveredStoreBool(true);
+			/*Map screen updates*/
+			if (this.hoveredStore != null && this.hoveredStore != this.selectedStore) {
+				this.mapScreen.setHoveredStore(this.hoveredStore);
+				this.mapScreen.setHoveredStoreBool(true);
+			} else {
+				this.mapScreen.setHoveredStoreBool(false);
+			}
 		} else {
-			this.mapScreen.setHoveredStoreBool(false);
+			// don't do anything in other modes - ignore the click
 		}
 	}
 	
@@ -620,8 +690,17 @@ public class Main implements MouseListener, MouseMotionListener {
 				match = s;
 			}
 		}
-		if (match != null && match != this.selectedStore) {
-			this.hoveredStore = match;
+		
+		if (match != null) {
+			if (this.mode == SelectionMode.SELECTED) {
+				if (match != this.selectedStore) {
+					this.hoveredStore = match;
+				} else {
+					this.hoveredStore = null;
+				}
+			} else {
+				this.hoveredStore = match;
+			}
 		} else {
 			this.hoveredStore = null;
 		}
@@ -635,9 +714,18 @@ public class Main implements MouseListener, MouseMotionListener {
 		
 		/*Map screen updates*/
 		this.mapScreen.setUserHovered(this.userHovered);
-		if (this.hoveredStore != null && this.hoveredStore != this.selectedStore) {
-			this.mapScreen.setHoveredStore(this.hoveredStore);
-			this.mapScreen.setHoveredStoreBool(true);
+		if (this.hoveredStore != null) {
+			if (this.mode == SelectionMode.SELECTED) {
+				if (this.hoveredStore != this.selectedStore) {
+					this.mapScreen.setHoveredStore(this.hoveredStore);
+					this.mapScreen.setHoveredStoreBool(true);
+				} else {
+					this.mapScreen.setHoveredStoreBool(false);
+				}
+			} else {
+				this.mapScreen.setHoveredStore(this.hoveredStore);
+				this.mapScreen.setHoveredStoreBool(true);
+			}
 		} else {
 			this.mapScreen.setHoveredStoreBool(false);
 		}
@@ -660,6 +748,11 @@ public class Main implements MouseListener, MouseMotionListener {
 			
 			/*Map screen updates*/
 			this.mapScreen.setUserLoc(this.userXLoc, this.userYLoc);
+			
+			/*If in closest mode, update strings on every drag event*/
+			if (this.mode == SelectionMode.CLOSEST) {
+				this.updateStrings();
+			}
 		}
 	}
 	

@@ -1,4 +1,3 @@
-enums/AppState.java
 enums/ProductType.java
 classes/Product.java
 classes/Store.java

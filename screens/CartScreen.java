@@ -1,8 +1,11 @@
 package screens;
 
 import classes.Product;
+
+import javax.swing.ButtonGroup;
 import javax.swing.DefaultListModel;
 import javax.swing.JList;
+import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
 import javax.swing.ListSelectionModel;
 import javax.swing.ScrollPaneConstants;
@@ -24,6 +27,13 @@ public class CartScreen extends NonMenuScreen {
 	private JScrollPane cartListPane;
 	private DefaultListModel<String> cartModel;
 	private JList<String> cartList;
+	
+	private ButtonGroup modeToggle;
+	private JRadioButton selectToggle;
+	private JRadioButton closestToggle;
+	private JRadioButton cheapestToggle;
+	
+	private Label toggleLabel;
 	
 	/*The passed ArrayList of products will be used to populate productsModel*/
 	public CartScreen(int w, int h, ArrayList<Product> p) {
@@ -108,6 +118,56 @@ public class CartScreen extends NonMenuScreen {
 				cartLabelWidth,
 				cartLabelHeight);
 		this.cartLabel.setFont(new Font("GillSansUltraBold", Font.PLAIN, 15));
+		
+		/*Calculate mode toggle positioning*/
+		int toggleWidth = w / 8;
+		int toggleHeight = h / 30;
+		int toggleXLoc = w / 2 - (toggleWidth / 2);
+		
+		int selectToggleYLoc = 5 * h / 7;
+		int closestToggleYLoc = selectToggleYLoc + toggleHeight;
+		int cheapestToggleYLoc = closestToggleYLoc + toggleHeight;
+		
+		/*Initialize mode toggle button group*/
+		this.selectToggle = new JRadioButton("Selected store info");
+		this.selectToggle.setBounds(toggleXLoc, 
+				selectToggleYLoc, 
+				toggleWidth, 
+				toggleHeight);
+		
+		this.closestToggle = new JRadioButton("Closest store info");
+		this.closestToggle.setBounds(toggleXLoc, 
+				closestToggleYLoc, 
+				toggleWidth, 
+				toggleHeight);
+		
+		this.cheapestToggle = new JRadioButton("Cheapest store info");
+		this.cheapestToggle.setBounds(toggleXLoc, 
+				cheapestToggleYLoc, 
+				toggleWidth, 
+				toggleHeight);
+		
+		this.modeToggle = new ButtonGroup();
+		this.modeToggle.add(this.selectToggle);
+		this.modeToggle.add(this.closestToggle);
+		this.modeToggle.add(this.cheapestToggle);
+		
+		/*Start with selected toggle on*/
+		this.selectToggle.setSelected(true);
+		
+		/*Calculate toggle label positioning*/
+		int toggleLabelWidth = w / 10;
+		int toggleLabelHeight = h / 25;
+		int toggleLabelXLoc = toggleXLoc;
+		int toggleLabelYLoc = selectToggleYLoc - toggleLabelHeight;
+		
+		/*Initialize label*/
+		this.toggleLabel = new Label("Show me: ",
+				toggleLabelXLoc,
+				toggleLabelYLoc,
+				toggleLabelWidth,
+				toggleLabelHeight);
+		this.toggleLabel.setFont(new Font("GillSansUltraBold", Font.PLAIN, 15));
 	}
 	
 	public Button getMapButton() {
@@ -148,5 +208,21 @@ public class CartScreen extends NonMenuScreen {
 	
 	public JScrollPane getCartPane() {
 		return this.cartListPane;
+	}
+	
+	public JRadioButton getSelectToggle() {
+		return this.selectToggle;
+	}
+	
+	public JRadioButton getClosestToggle() {
+		return this.closestToggle;
+	}
+	
+	public JRadioButton getCheapestToggle() {
+		return this.cheapestToggle;
+	}
+	
+	public Label getToggleLabel() {
+		return this.toggleLabel;
 	}
 }
