@@ -55,7 +55,6 @@ import java.text.DecimalFormat;
  * -fix screen ratios so it looks passable on every screen
  * -make product prices slightly more realistic
  * -missing items text should wrap to prevent overflow into cart area
- * -toggle "i care about cart completeness" option
  * -general bug testing
  */
 public class Main implements MouseListener, MouseMotionListener {
@@ -72,6 +71,7 @@ public class Main implements MouseListener, MouseMotionListener {
 	
 	private Store closestStore = null;
 	private Store cheapestStore = null;
+	
 	private Store hoveredStore = null;
 	
 	private String cartTotal;
@@ -115,8 +115,7 @@ public class Main implements MouseListener, MouseMotionListener {
 	
 	public static void main(String[] args) {
 		Main m = new Main();
-		m.init();
-		while (m.running) {
+		while (m.isRunning()) {
 			m.tick();
 			try {
     			Thread.sleep(sleepTime); // sleep time is in milliseconds
@@ -124,10 +123,10 @@ public class Main implements MouseListener, MouseMotionListener {
     			e.printStackTrace();
     		}
 		}
-		m.frame.dispose();
+		m.cleanup();
 	}
 	
-	void init() {
+	public Main() {
 		/*Get screen info*/
 		Dimension d = Toolkit.getDefaultToolkit().getScreenSize();
 		this.screenWidth = (int)d.getWidth();
@@ -177,6 +176,25 @@ public class Main implements MouseListener, MouseMotionListener {
 		this.setActionListeners();
 	}
 	
+	/*Appears only in main - return the running boolean*/
+	public boolean isRunning() {
+		return this.running;
+	}
+	
+	/*Appears only in the main while loop - a cycle consists of updating the 
+	 *state of the application, updating label text, and repainting the frame*/
+	void tick() {
+		this.updateAppState();
+		this.updateLabels();
+		this.frame.repaint();
+	}
+	
+	/*Appears only in main - dispose of the frame when we're finished*/
+	public void cleanup() {
+		this.frame.dispose();
+	}
+	
+	/*Initialize the ArrayList of all products to hold some random items*/
 	public void initProducts() {
 		/*Initialize list of products.*/
 		this.allProducts = new ArrayList<Product>();
@@ -207,6 +225,7 @@ public class Main implements MouseListener, MouseMotionListener {
 		this.allProducts.add(new Product("Ice Cream", ProductType.DAIRY, false, BigDecimal.valueOf(4.00)));
 	}
 	
+	/*Initialize the ArrayList of all stores to hold some random stores with random inventories*/
 	public void initStores() {
 		/*Initialize stores.*/
 		this.stores = new ArrayList<Store>();
@@ -236,6 +255,7 @@ public class Main implements MouseListener, MouseMotionListener {
 		this.stores.add(new Store("Store D", this.allProducts, 63 * this.screenWidth / 100, 32 * this.screenHeight / 100));
 	}
 	
+	/*Set action/focus listeners for every element in the application*/
 	public void setActionListeners() {
 		/*Start screen button*/
 		this.startScreen.getStartButton().addActionListener(new ActionListener() {
@@ -263,7 +283,7 @@ public class Main implements MouseListener, MouseMotionListener {
 				nextState = AppState.EXIT;
 			}
     	});
-		/*Cart screen buttons*/
+		/*Cart screen elements*/
 		this.cartScreen.getBackButton().addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -374,7 +394,7 @@ public class Main implements MouseListener, MouseMotionListener {
 				mapScreen.setSelectedStoreBool(false);
 			}
     	});
-		/*Map screen buttons*/
+		/*Map screen elements*/
 		this.mapScreen.getBackButton().addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -418,12 +438,8 @@ public class Main implements MouseListener, MouseMotionListener {
 		});
 	}
 	
-	void tick() {
-		this.updateAppState();
-		this.updateLabels();
-		this.frame.repaint();
-	}
-	
+	/*Update the state of the application, if applicable - when the state changes,
+	 *remove old components from the frame and add the correct ones*/
 	public void updateAppState() {
 		if (this.currState != this.nextState) {
 			this.frame.getContentPane().removeAll();
@@ -510,6 +526,10 @@ public class Main implements MouseListener, MouseMotionListener {
 		}
 	}
 	
+	/*updateLabels() calls setText() on the map screen components; this method ensures
+	 *the strings that updateLabels() is using in the setText() calls are correct - namely,
+	 *anything that's not immediately available (selected product info, cart total, and missing
+	 *items - these must be calculated)*/
 	public void updateStrings() {
 		switch (this.mode) {
 			case CLOSEST:
@@ -528,6 +548,7 @@ public class Main implements MouseListener, MouseMotionListener {
 		this.updateMissingItemsString();
 	}
 	
+	/*Update the selected product info string*/
 	public void updateSelectedProductInfoString() {
 		if (this.groceryCart.isEmpty()) {
 			this.selectedProductInfo = "Cart is empty";
@@ -543,6 +564,7 @@ public class Main implements MouseListener, MouseMotionListener {
 		}
 	}
 	
+	/*Calculate the cart total and update the cart total string*/
 	public void updateCartTotalString() {
 		if (this.groceryCart.isEmpty()) {
 			this.cartTotal = "Cart is empty";
@@ -562,6 +584,8 @@ public class Main implements MouseListener, MouseMotionListener {
 		this.cartTotal = "$" + this.df.format(total.doubleValue());
 	}
 	
+	/*Find which items from the cart are missing and update the missing
+	 *items string*/
 	public void updateMissingItemsString() {
 		if (this.groceryCart.isEmpty()) {
 			this.missingItemsString = "Cart is empty";
@@ -604,6 +628,7 @@ public class Main implements MouseListener, MouseMotionListener {
 		return (int)Math.sqrt(x + y);
 	}
 	
+	/*Calculate and update the distance between the user and store for all stores*/
 	public void calculateStoreDistances() {
 		for (Store s : this.stores) {
 			int distance = this.getDistance(this.userXLoc, s.getXLoc(), this.userYLoc, s.getYLoc());
@@ -611,6 +636,7 @@ public class Main implements MouseListener, MouseMotionListener {
 		}
 	}
 	
+	/*Calculate and update the closest store*/
 	public void calculateClosestStore() {
 		int closest = this.bigNumber; // start with some large number
 		for (Store s : this.stores) {
@@ -621,8 +647,14 @@ public class Main implements MouseListener, MouseMotionListener {
 		}
 	}
 	
+	/*Calculate and update the cheapest store*/
 	public void calculateCheapestStore() {
-		BigDecimal cheapest = BigDecimal.valueOf(1000000.0); // start with some large number
+		if (this.groceryCart.isEmpty()) {
+			this.cheapestStore = null;
+			return;
+		}
+		
+		BigDecimal cheapest = BigDecimal.valueOf(this.bigNumber); // start with some large number
 		for (Store s : this.stores) {
 			BigDecimal total = BigDecimal.valueOf(0.00);
 			for (Product p : this.groceryCart) {
@@ -632,13 +664,14 @@ public class Main implements MouseListener, MouseMotionListener {
 				}
 			}
 			
-			if (total.compareTo(cheapest) == -1) {
+			if (total.compareTo(cheapest) == -1 && total.compareTo(BigDecimal.valueOf(0.00)) != 0) {
 				cheapest = total;
 				this.cheapestStore = s;
 			}
 		}
 	}
 	
+	/*Add the given JPanel to the frame*/
 	public void addViewToFrame(JPanel screen) {
 		this.frame.getContentPane().add(screen);
 		this.frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -681,7 +714,9 @@ public class Main implements MouseListener, MouseMotionListener {
 		}
 	}
 	
-	/*Check if hovering over user/stores*/
+	/*Check if hovering over user/stores - if in selected store mode, don't
+	 *display info on hover if the hovered store is also the selected store. This
+	 *doesn't apply in the other two modes*/
 	public void manageMove(int moveX, int moveY) {
 		/*Check for store hovers*/
 		Store match = null;
