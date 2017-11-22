@@ -53,7 +53,6 @@ import java.text.DecimalFormat;
 
 /*TODO:
  * -fix screen ratios so it looks passable on every screen
- * -make product prices slightly more realistic
  * -missing items text should wrap to prevent overflow into cart area
  * -general bug testing
  */
@@ -194,35 +193,36 @@ public class Main implements MouseListener, MouseMotionListener {
 		this.frame.dispose();
 	}
 	
-	/*Initialize the ArrayList of all products to hold some random items*/
+	/*Initialize the ArrayList of all products to hold some random items. Prices are from
+	 *walmart and target*/
 	public void initProducts() {
 		/*Initialize list of products.*/
 		this.allProducts = new ArrayList<Product>();
-		this.allProducts.add(new Product("Apples (Red)", ProductType.FRUIT, false, BigDecimal.valueOf(1.05))); // populate list with some random items
-		this.allProducts.add(new Product("Apples (Green)", ProductType.FRUIT, false, BigDecimal.valueOf(1.05)));
-		this.allProducts.add(new Product("Bananas", ProductType.FRUIT, false, BigDecimal.valueOf(1.00)));
+		this.allProducts.add(new Product("Apples (Red)", ProductType.FRUIT, false, BigDecimal.valueOf(.80))); // populate list with some random items
+		this.allProducts.add(new Product("Apples (Green)", ProductType.FRUIT, false, BigDecimal.valueOf(.81)));
+		this.allProducts.add(new Product("Bananas", ProductType.FRUIT, false, BigDecimal.valueOf(.57)));
 		this.allProducts.add(new Product("Bread", ProductType.WHEAT, false, BigDecimal.valueOf(2.30)));
-		this.allProducts.add(new Product("Grapes (Green)", ProductType.FRUIT, false, BigDecimal.valueOf(.95)));
-		this.allProducts.add(new Product("Chips", ProductType.SNACK, false, BigDecimal.valueOf(1.25)));
-		this.allProducts.add(new Product("Crisps", ProductType.SNACK, false, BigDecimal.valueOf(1.25)));
-		this.allProducts.add(new Product("Chisps", ProductType.SNACK, false, BigDecimal.valueOf(1.25)));
-		this.allProducts.add(new Product("Beef (1 lb)", ProductType.MEAT, false, BigDecimal.valueOf(6.00)));
-		this.allProducts.add(new Product("Chicken (1 lb)", ProductType.MEAT, false, BigDecimal.valueOf(5.00)));
-		this.allProducts.add(new Product("Laundry Detergent", ProductType.UTIL, true, BigDecimal.valueOf(3.00)));
-		this.allProducts.add(new Product("Paper Towels", ProductType.UTIL, false, BigDecimal.valueOf(2.00)));
-		this.allProducts.add(new Product("Batteries (AA)", ProductType.UTIL, true, BigDecimal.valueOf(4.00)));
-		this.allProducts.add(new Product("Batteries (AAA)", ProductType.UTIL, true, BigDecimal.valueOf(2.00)));
-		this.allProducts.add(new Product("Cereal", ProductType.WHEAT, false, BigDecimal.valueOf(3.00)));
-		this.allProducts.add(new Product("Milk (Skim)", ProductType.DAIRY, false, BigDecimal.valueOf(2.00)));
-		this.allProducts.add(new Product("Milk (.5%)", ProductType.DAIRY, false, BigDecimal.valueOf(2.10)));
-		this.allProducts.add(new Product("Milk (1%)", ProductType.DAIRY, false, BigDecimal.valueOf(2.20)));
-		this.allProducts.add(new Product("Milk (2%)", ProductType.DAIRY, false, BigDecimal.valueOf(2.30)));
-		this.allProducts.add(new Product("Cheese", ProductType.DAIRY, false, BigDecimal.valueOf(3.00)));
-		this.allProducts.add(new Product("Water (2 L)", ProductType.BEVERAGE, false, BigDecimal.valueOf(2.00)));
-		this.allProducts.add(new Product("Coca Cola (2 L)", ProductType.BEVERAGE, true, BigDecimal.valueOf(2.00)));
-		this.allProducts.add(new Product("Pepsi (2 L)", ProductType.BEVERAGE, true, BigDecimal.valueOf(2.00)));
-		this.allProducts.add(new Product("Sparkling Water", ProductType.BEVERAGE, false, BigDecimal.valueOf(2.00)));
-		this.allProducts.add(new Product("Ice Cream", ProductType.DAIRY, false, BigDecimal.valueOf(4.00)));
+		this.allProducts.add(new Product("Grapes (Green)", ProductType.FRUIT, false, BigDecimal.valueOf(1.57)));
+		this.allProducts.add(new Product("Chips", ProductType.SNACK, false, BigDecimal.valueOf(3.00)));
+		this.allProducts.add(new Product("Crisps", ProductType.SNACK, false, BigDecimal.valueOf(2.90)));
+		this.allProducts.add(new Product("Chisps", ProductType.SNACK, false, BigDecimal.valueOf(3.25)));
+		this.allProducts.add(new Product("Beef (1 lb)", ProductType.MEAT, false, BigDecimal.valueOf(3.86)));
+		this.allProducts.add(new Product("Chicken (1 lb)", ProductType.MEAT, false, BigDecimal.valueOf(3.24)));
+		this.allProducts.add(new Product("Laundry Detergent", ProductType.UTIL, true, BigDecimal.valueOf(10.42)));
+		this.allProducts.add(new Product("Paper Towels", ProductType.UTIL, false, BigDecimal.valueOf(6.02)));
+		this.allProducts.add(new Product("Batteries (AA)", ProductType.UTIL, true, BigDecimal.valueOf(14.99)));
+		this.allProducts.add(new Product("Batteries (AAA)", ProductType.UTIL, true, BigDecimal.valueOf(12.99)));
+		this.allProducts.add(new Product("Cereal", ProductType.WHEAT, false, BigDecimal.valueOf(2.99)));
+		this.allProducts.add(new Product("Milk (Skim)", ProductType.DAIRY, false, BigDecimal.valueOf(2.99)));
+		this.allProducts.add(new Product("Milk (.5%)", ProductType.DAIRY, false, BigDecimal.valueOf(3.55)));
+		this.allProducts.add(new Product("Milk (1%)", ProductType.DAIRY, false, BigDecimal.valueOf(3.98)));
+		this.allProducts.add(new Product("Milk (2%)", ProductType.DAIRY, false, BigDecimal.valueOf(3.98)));
+		this.allProducts.add(new Product("Cheese", ProductType.DAIRY, false, BigDecimal.valueOf(4.19)));
+		this.allProducts.add(new Product("Water (2L)", ProductType.BEVERAGE, false, BigDecimal.valueOf(1.20)));
+		this.allProducts.add(new Product("Coca Cola (2L)", ProductType.BEVERAGE, true, BigDecimal.valueOf(1.79)));
+		this.allProducts.add(new Product("Pepsi (2L)", ProductType.BEVERAGE, true, BigDecimal.valueOf(1.79)));
+		this.allProducts.add(new Product("Sparkling Water", ProductType.BEVERAGE, false, BigDecimal.valueOf(1.68)));
+		this.allProducts.add(new Product("Ice Cream", ProductType.DAIRY, false, BigDecimal.valueOf(5.25)));
 	}
 	
 	/*Initialize the ArrayList of all stores to hold some random stores with random inventories*/
