@@ -7,7 +7,6 @@ import javax.swing.JScrollPane;
 import javax.swing.ListSelectionModel;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.SwingConstants;
-
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics;

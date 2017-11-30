@@ -1,7 +1,6 @@
 package screens;
 
 import classes.Product;
-
 import javax.swing.ButtonGroup;
 import javax.swing.DefaultListModel;
 import javax.swing.JList;

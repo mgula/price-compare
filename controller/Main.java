@@ -51,11 +51,6 @@ import java.util.ArrayList;
 import java.math.BigDecimal; //these are slower and uglier than doubles but are far more accurate
 import java.text.DecimalFormat;
 
-/*TODO:
- * -fix screen ratios so it looks passable on every screen
- * -missing items text should wrap to prevent overflow into cart area
- * -general bug testing
- */
 public class Main implements MouseListener, MouseMotionListener {
 	public enum AppState {START, MENU, CART, MAP, EXIT};
 	public enum SelectionMode {SELECTED, CLOSEST, CHEAPEST};
