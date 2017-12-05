@@ -112,10 +112,10 @@ public class Main implements MouseListener, MouseMotionListener {
 		while (m.isRunning()) {
 			m.tick();
 			try {
-    			Thread.sleep(sleepTime); // sleep time is in milliseconds
-    		} catch (InterruptedException e) {
-    			e.printStackTrace();
-    		}
+    				Thread.sleep(sleepTime); // sleep time is in milliseconds
+    			} catch (InterruptedException e) {
+    				e.printStackTrace();
+    			}
 		}
 		m.cleanup();
 	}
