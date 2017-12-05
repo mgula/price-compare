@@ -258,39 +258,39 @@ public class Main implements MouseListener, MouseMotionListener {
 			public void actionPerformed(ActionEvent e) {
 				nextState = AppState.MENU;
 			}
-    	});
+    		});
 		/*Menu screen buttons*/
 		this.menuScreen.getEditCartButton().addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				nextState = AppState.CART;
 			}
-    	});
+    		});
 		this.menuScreen.getMapButton().addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				nextState = AppState.MAP;
 			}
-    	});
+    		});
 		this.menuScreen.getExitButton().addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				nextState = AppState.EXIT;
 			}
-    	});
+    		});
 		/*Cart screen elements*/
 		this.cartScreen.getBackButton().addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				nextState = AppState.MENU;
 			}
-    	});
+    		});
 		this.cartScreen.getMapButton().addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				nextState = AppState.MAP;
 			}
-    	});
+    		});
 		this.cartScreen.getAddButton().addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -310,7 +310,7 @@ public class Main implements MouseListener, MouseMotionListener {
 				
 				updateStrings();
 			}
-    	});
+    		});
 		this.cartScreen.getRemoveButton().addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -340,7 +340,7 @@ public class Main implements MouseListener, MouseMotionListener {
 					updateStrings();
 				}
 			}
-    	});
+    		});
 		this.cartScreen.getProductList().addFocusListener(new FocusListener() {
 			@Override
 			public void focusGained(FocusEvent e) {
@@ -366,7 +366,7 @@ public class Main implements MouseListener, MouseMotionListener {
 				selectedStore = null;
 				updateStrings();
 			}
-    	});
+    		});
 		this.cartScreen.getClosestToggle().addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -377,7 +377,7 @@ public class Main implements MouseListener, MouseMotionListener {
 				
 				mapScreen.setSelectedStoreBool(false);
 			}
-    	});
+    		});
 		this.cartScreen.getCheapestToggle().addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -388,20 +388,20 @@ public class Main implements MouseListener, MouseMotionListener {
 				
 				mapScreen.setSelectedStoreBool(false);
 			}
-    	});
+    		});
 		/*Map screen elements*/
 		this.mapScreen.getBackButton().addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				nextState = AppState.MENU;
 			}
-    	});
+    		});
 		this.mapScreen.getCartButton().addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				nextState = AppState.CART;
 			}
-    	});
+    		});
 		this.mapScreen.getCartList().addMouseListener(new MouseListener() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
